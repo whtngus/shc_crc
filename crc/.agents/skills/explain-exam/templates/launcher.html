@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <title>예제 설명 페이지로 이동…</title>
+  <script>
+    // 같은 폴더의 data.js 를 공용 셸로 열어 주는 launcher.
+    // 아래 두 값은 스킬이 페이지를 만들 때 실제 상대경로로 채움(둘 다 상대경로라 file:// 더블클릭에서 안전).
+    (function () {
+      var SHELL_REL = "__SHELL_REL__";  // 이 파일 기준, 셸 디렉터리까지의 상대경로   예: "../../explain-exam"
+      var DATA_REL  = "__DATA_REL__";   // 셸 디렉터리 기준, 이 폴더 data.js 상대경로  예: "../my-example/explain/data.js"
+
+      if (SHELL_REL.indexOf("__") === 0) {
+        document.addEventListener("DOMContentLoaded", function () {
+          document.body.textContent =
+            "설정 오류: 이 launcher의 SHELL_REL / DATA_REL 값이 아직 채워지지 않았습니다.";
+        });
+        return;
+      }
+      location.replace(SHELL_REL + "/index.html?data=" + DATA_REL);
+    })();
+  </script>
+</head>
+<body style="font-family: system-ui, 'Malgun Gothic', sans-serif; padding: 28px; color: #333;">
+  설명 페이지로 이동 중입니다…
+  <noscript>
+    JavaScript가 꺼져 있어 자동으로 이동하지 못했습니다. 브라우저에서 JavaScript를 켜고 다시 열거나,
+    공용 셸의 <code>index.html</code> 뒤에
+    <code>?data=&lt;이 폴더의 data.js 까지의 상대경로&gt;</code> 를 붙여 여세요.
+  </noscript>
+</body>
+</html>

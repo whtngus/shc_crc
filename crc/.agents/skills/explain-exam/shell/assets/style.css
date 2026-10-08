@@ -1,0 +1,305 @@
+/* 예제 설명 페이지 - 공유 스타일 (모든 예제 공통) */
+
+:root {
+  --bg: #f4f6fb;
+  --panel: #ffffff;
+  --ink: #1f2733;
+  --ink-soft: #5b6675;
+  --line: #e4e8f0;
+  --brand: #4f6ef7;
+  --brand-soft: #eef1fe;
+  --flow: #1aa179;
+  --flow-soft: #e6f6f0;
+  --hot: #fff6da;
+  --hot-line: #f6c945;
+  --code-bg: #0f172a;
+  --code-ink: #e6edf6;
+  --code-ln: #5a6b86;
+  --t-kw: #c792ea;
+  --t-str: #b6e08a;
+  --t-com: #7b8aa3;
+  --t-num: #f7a072;
+  --t-fn: #82aaff;
+  --t-dec: #ffcb6b;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* 상단 바 */
+.topbar {
+  flex: 0 0 auto;
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+  padding: 14px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.topbar h1 { margin: 0; font-size: 19px; font-weight: 700; }
+.subtitle { margin: 2px 0 0; font-size: 14.3px; color: #2563eb; }
+.legend { display: flex; align-items: center; gap: 16px; font-size: 12.5px; color: var(--ink-soft); flex-wrap: wrap; }
+.legend .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 5px; vertical-align: middle; }
+.dot-flow { background: var(--flow); }
+.dot-file { background: var(--brand); }
+.legend-hint { padding-left: 12px; border-left: 1px solid var(--line); }
+
+/* 3분할 레이아웃 */
+.resizer {
+  flex: 0 0 5px; width: 5px; cursor: col-resize;
+  background: var(--line); transition: background .15s;
+  position: relative; z-index: 10;
+}
+.resizer:hover, .resizer.dragging { background: var(--brand); }
+
+/* 좌측 패널 토글 버튼 */
+.nav-toggle-btn {
+  position: absolute; top: 12px; left: 50%;
+  transform: translateX(-50%);
+  width: 20px; height: 20px; padding: 0;
+  border-radius: 50%;
+  background: #fff; border: 1.5px solid var(--grid);
+  cursor: pointer; font-size: 9px; color: #555;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 20; line-height: 1;
+  transition: background .12s, border-color .12s, color .12s;
+  box-shadow: 0 1px 3px rgba(0,0,0,.12);
+}
+.nav-toggle-btn:hover { background: #e8eeff; border-color: var(--brand); color: var(--brand); }
+
+/* 접힌 상태 */
+.nav-collapsed #nav { overflow: hidden; }
+.nav-collapsed #resizer-left {
+  background: #f0f2f5; cursor: default; width: 22px;
+}
+.nav-collapsed #resizer-left:hover { background: #e8eaed; }
+.resizer::after {
+  content: ''; position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 1px; height: 32px;
+  background: rgba(0,0,0,.15); border-radius: 2px;
+}
+
+.layout {
+  flex: 1 1 auto;
+  display: grid;
+  grid-template-columns: 280px 5px minmax(0, 1fr) 5px 410px;
+  min-height: 0;
+}
+.panel { overflow-y: auto; min-height: 0; }
+
+/* 좌측 메뉴 */
+.nav-panel { background: var(--panel); border-right: 1px solid var(--line); padding: 14px 12px 40px; }
+.nav-group { margin-bottom: 18px; }
+.nav-group-title { font-size: 14.4px; font-weight: 700; padding: 4px 8px; margin-bottom: 4px; border-radius: 6px; }
+.nav-group-title.flow { color: var(--flow); background: var(--flow-soft); }
+.nav-group-title.file { color: var(--brand); background: var(--brand-soft); font-family: "Consolas", monospace; }
+.nav-group-role { font-size: 12.7px; color: #111; padding: 0 8px 8px; font-weight: 700; border-bottom: 1.5px solid #d0d5dd; margin-bottom: 4px; }
+.nav-item {
+  display: block; width: 100%; text-align: left;
+  background: transparent; border: 0; border-radius: 7px;
+  padding: 7px 10px; margin: 1px 0; cursor: pointer;
+  font-size: 14.9px; color: #111;
+  font-family: "Consolas", "D2Coding", monospace;
+  transition: background .12s, color .12s;
+  white-space: normal; word-break: break-word;
+}
+.nav-item:hover { background: #f0f3fa; }
+.nav-item.active { background: var(--brand); color: #fff; font-weight: 600; }
+
+/* 중앙 */
+.center-panel { padding: 20px 22px 60px; }
+.center-head { margin-bottom: 14px; }
+.center-head h2 { margin: 6px 0 0; font-size: 18px; }
+.center-sub { margin: 8px 0 0; color: #111; font-size: 14.9px; }
+.file-badge {
+  display: inline-block; font-family: "Consolas", monospace; font-size: 12px;
+  color: var(--brand); background: var(--brand-soft); padding: 2px 8px; border-radius: 5px;
+}
+.code-block {
+  background: var(--code-bg); color: var(--code-ink);
+  border-radius: 10px; padding: 14px 0; overflow-x: auto;
+  font-family: "Consolas", "D2Coding", "Courier New", monospace;
+  font-size: 13.5px; line-height: 1.65;
+}
+/* 코드블록 래퍼 + 줌 버튼 */
+.code-wrap { position: relative; }
+.code-zoom-bar {
+  position: absolute; top: 8px; right: 10px; z-index: 5;
+  display: flex; gap: 4px;
+}
+.zoom-btn {
+  background: rgba(255,255,255,.92); border: 1px solid #c8cdd5;
+  border-radius: 6px; padding: 3px 9px; cursor: pointer;
+  font-size: 13px; font-weight: 700; color: #374151; line-height: 1.4;
+  font-family: system-ui, "Malgun Gothic", sans-serif;
+  transition: background .12s, border-color .12s;
+  user-select: none;
+}
+.zoom-btn:hover { background: #e8eeff; border-color: var(--brand); color: var(--brand); }
+.zoom-btn:active { background: #d6e4ff; }
+
+.code-line { display: flex; padding: 0 14px; white-space: pre; }
+.code-line .ln { flex: 0 0 38px; text-align: right; padding-right: 14px; color: var(--code-ln); user-select: none; }
+.code-line .lc { flex: 1 1 auto; }
+.code-line.has-pair { cursor: pointer; }
+.code-line.has-pair:hover { background: rgba(130, 170, 255, .10); }
+.code-line.hot { background: rgba(246, 201, 69, .18); }
+
+.t-kw { color: var(--t-kw); }
+.t-str { color: var(--t-str); }
+.t-com { color: var(--t-com); font-style: italic; }
+.t-num { color: var(--t-num); }
+.t-fn { color: var(--t-fn); }
+.t-dec { color: var(--t-dec); }
+
+.flow { display: flex; flex-direction: column; align-items: stretch; }
+.flow-step {
+  display: flex; gap: 12px; align-items: flex-start;
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: 10px; padding: 12px 14px; cursor: pointer;
+  transition: border-color .12s, background .12s;
+}
+.flow-step:hover { border-color: var(--flow); }
+.flow-step.hot { background: var(--flow-soft); border-color: var(--flow); }
+.flow-num {
+  flex: 0 0 28px; height: 28px; border-radius: 50%;
+  background: var(--flow); color: #fff; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; font-size: 14px;
+}
+.flow-title { font-weight: 700; }
+.flow-sum { color: #111; font-size: 14.9px; }
+.flow-arrow { text-align: center; color: var(--flow); font-size: 18px; line-height: 1.2; margin: 2px 0; }
+
+/* 우측 설명 */
+.detail-panel { background: var(--panel); border-left: 1px solid var(--line); padding: 20px 20px 60px; }
+.detail-head h2 { margin: 0; font-size: 20.4px; }
+.detail-sub { display: none; }
+/* 단계별 자세한 설명: 단계 번호를 타이틀과 시각적으로 구분 (번호=초록 볼드 + 마침표) */
+.flow-detail { margin-bottom: 12px; }
+.fd-head { font-weight: 700; margin-bottom: 2px; }
+.fd-num { color: var(--flow); }
+.fd-num::after { content: "."; margin-right: 4px; }
+.d-summary { margin: 12px 0 6px; padding: 12px 14px; background: var(--brand-soft); border-radius: 9px; font-size: 14.5px; }
+.d-section { margin-top: 18px; }
+.d-section h3 { margin: 0 0 8px; font-size: 14px; color: var(--brand); padding-bottom: 5px; border-bottom: 2px solid var(--line); }
+.d-how { margin: 0; }
+.d-tip { margin: 0 0 8px; font-size: 12.5px; color: var(--ink-soft); }
+
+.anno-list { display: flex; flex-direction: column; gap: 6px; }
+.anno {
+  display: flex; gap: 8px; align-items: baseline;
+  padding: 8px 10px; border: 1px solid var(--line);
+  border-left: 3px solid var(--line); border-radius: 7px;
+  background: #fafbfe; cursor: pointer; transition: all .12s;
+}
+.anno:hover { border-left-color: var(--hot-line); }
+.anno.hot { background: var(--hot); border-left-color: var(--hot-line); }
+.anno-ln { flex: 0 0 auto; font-family: "Consolas", monospace; font-size: 12px; color: #fff; background: var(--brand); border-radius: 4px; padding: 1px 6px; }
+.anno.hot .anno-ln { background: #d9a300; }
+.anno-tx { flex: 1 1 auto; font-size: 14.9px; color: #111; }
+
+/* ★ 핵심 줄 강조 */
+.anno--star {
+  background: #fffbeb;
+  border-left-color: #f59e0b;
+  border-left-width: 4px;
+}
+.anno--star .anno-ln { background: #d97706; }
+.anno--star .anno-tx { font-weight: 600; color: #1a1a1a; }
+.anno--star:hover { background: #fef3c7; border-left-color: #d97706; }
+.anno-star-icon { color: #d97706; font-style: normal; }
+
+.terms { display: flex; flex-direction: column; gap: 10px; }
+.term { padding: 10px 12px; background: #fafbfe; border: 1px solid var(--line); border-radius: 8px; }
+.term-name {
+  display: inline-block; font-weight: 700; color: var(--brand);
+  font-family: "Consolas", monospace; font-size: 13.5px;
+  border-bottom: 2px dotted var(--brand); cursor: help; margin-bottom: 4px;
+}
+.term-desc { display: block; font-size: 13.5px; color: var(--ink); }
+
+.empty-error { padding: 40px 20px; text-align: center; color: var(--ink-soft); max-width: 640px; margin: 0 auto; }
+.empty-error h2 { color: var(--ink); }
+.empty-error code { background: #eef1fe; color: var(--brand); padding: 2px 7px; border-radius: 4px; font-size: 13px; }
+
+.footer {
+  flex: 0 0 auto; background: var(--panel); border-top: 1px solid var(--line);
+  padding: 9px 22px; font-size: 12px; color: var(--ink-soft); text-align: center;
+}
+
+/* ───── 처리 흐름 ↔ 함수 연결 (data.js 의 flow[].refs 가 있을 때만 나타남) ───── */
+/* 좌측: 처리 흐름 단계 바로가기 */
+.nav-flow-hint { font-size: 12px; color: var(--flow); padding: 3px 8px 6px; line-height: 1.4; }
+.nav-step { display: flex; align-items: center; gap: 8px;
+  font-family: "Segoe UI", "Malgun Gothic", system-ui, sans-serif; }
+.nav-step-num {
+  flex: 0 0 20px; height: 20px; border-radius: 50%;
+  background: var(--flow); color: #fff; font-weight: 700; font-size: 12px;
+  display: flex; align-items: center; justify-content: center;
+}
+.nav-step-tx { flex: 1 1 auto; font-size: 14px; }
+.nav-step:hover { background: var(--flow-soft); }
+.nav-step.active { background: var(--flow); color: #fff; font-weight: 600; }
+.nav-step.active .nav-step-num { background: #fff; color: var(--flow); }
+
+/* 좌측: 진입점 '시작' 배지 + 함수의 소속 단계 번호 배지 */
+.nav-entry-badge {
+  float: right; font-family: "Segoe UI", "Malgun Gothic", system-ui, sans-serif;
+  font-size: 11px; font-weight: 700; color: #fff; background: var(--brand);
+  border-radius: 10px; padding: 1px 8px;
+}
+.nav-fn-step {
+  float: right; font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 11px; font-weight: 700; color: var(--flow);
+  background: var(--flow-soft); border-radius: 9px; padding: 0 7px; margin-left: 6px;
+}
+.nav-item.active .nav-fn-step { background: rgba(255,255,255,.3); color: #fff; }
+
+/* 중앙(함수 화면): 이 함수가 속한 처리 흐름 단계 컨텍스트 배너 */
+.fn-context {
+  margin-top: 9px; font-size: 13.5px;
+  background: var(--flow-soft); border-radius: 8px; padding: 8px 12px;
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+.fn-context-tx { color: #0f5132; }
+.fn-context b { color: var(--flow); }
+.fn-context-link {
+  margin-left: auto; border: 1px solid var(--flow); background: #fff;
+  color: var(--flow); border-radius: 6px; padding: 2px 10px; cursor: pointer;
+  font-size: 12px; font-family: "Segoe UI", "Malgun Gothic", system-ui, sans-serif; white-space: nowrap;
+}
+.fn-context-link:hover { background: var(--flow); color: #fff; }
+
+/* 중앙(전체 흐름 카드): 단계별 '코드:' 바로가기 칩 */
+.flow-refs { margin-top: 9px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.flow-refs-label { font-size: 12.5px; color: var(--ink-soft); font-weight: 600; }
+.flow-ref {
+  font-family: "Consolas", "D2Coding", monospace; font-size: 12.5px;
+  border: 1px solid var(--brand); background: var(--brand-soft); color: var(--brand);
+  border-radius: 6px; padding: 2px 9px; cursor: pointer; transition: background .12s, color .12s;
+}
+.flow-ref:hover { background: var(--brand); color: #fff; }
+
+@media (max-width: 1024px) {
+  .layout { grid-template-columns: 1fr; grid-auto-rows: auto; }
+  .resizer { display: none; }
+  .panel { overflow: visible; }
+  body { height: auto; min-height: 100vh; }
+  .nav-panel { border-right: 0; border-bottom: 1px solid var(--line); }
+  .detail-panel { border-left: 0; border-top: 1px solid var(--line); }
+}

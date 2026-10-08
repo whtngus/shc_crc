@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>예제 설명 페이지</title>
+  <link rel="stylesheet" href="assets/style.css?v=8" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <h1 id="page-title">예제 설명 페이지</h1>
+      <p class="subtitle" id="page-entry"></p>
+    </div>
+    <div class="legend">
+      <span><span class="dot dot-flow"></span> 처리 흐름</span>
+      <span><span class="dot dot-file"></span> 파일별 함수</span>
+      <span class="legend-hint">용어에 마우스를 올리면 설명이 나옵니다</span>
+    </div>
+  </header>
+
+  <main class="layout">
+    <!-- 좌측: 메뉴 (처리 흐름 + 파일별 함수) -->
+    <nav id="nav" class="panel nav-panel" aria-label="메뉴"></nav>
+    <div class="resizer" id="resizer-left" title="드래그하여 좌우 크기 조절">
+      <button id="nav-toggle" class="nav-toggle-btn" title="패널 접기">◀</button>
+    </div>
+    <!-- 중앙: 처리 흐름 단계 또는 함수 소스 -->
+    <section id="center" class="panel center-panel" aria-label="내용"></section>
+    <div class="resizer" id="resizer-right" title="드래그하여 좌우 크기 조절"></div>
+    <!-- 우측: 상세 설명 -->
+    <aside id="detail" class="panel detail-panel" aria-label="설명"></aside>
+  </main>
+
+  <footer class="footer">
+    프로그래밍을 처음 보는 분도 이해할 수 있도록 만든 예제 설명 페이지 ·
+    왼쪽에서 항목을 누르면 가운데 코드와 오른쪽 설명이 함께 바뀝니다.
+  </footer>
+
+  <!--
+    이 셸(index.html + assets/)은 모든 예제가 공유함. 예제별 콘텐츠는 data.js 하나뿐임.
+    여는 방법: index.html?data=<예제 data.js 까지의 상대경로>
+      예) index.html?data=../my-example/explain/data.js
+    app.js 가 위 경로를 동적 <script> 로 주입해 불러옴 (file:// 에서도 안전, fetch 미사용).
+  -->
+  <script src="assets/app.js?v=8" charset="utf-8"></script>
+  <script>
+  (function () {
+    var LS_COLS      = 'explain_panel_cols';
+    var LS_NAV_W     = 'explain_nav_width';
+    var LS_COLLAPSED = 'explain_nav_collapsed';
+    var COLLAPSED_RL = 22; // 접힌 상태의 resizer-left 너비
+
+    var layout    = document.querySelector('.layout');
+    var rLeft     = document.getElementById('resizer-left');
+    var rRight    = document.getElementById('resizer-right');
+    var navToggle = document.getElementById('nav-toggle');
+    if (!layout || !rLeft || !rRight) return;
+
+    var isCollapsed = localStorage.getItem(LS_COLLAPSED) === '1';
+
+    // ── 저장된 패널 크기 복원 ──────────────────────────────────────
+    var saved = localStorage.getItem(LS_COLS);
+    if (saved) layout.style.gridTemplateColumns = saved;
+
+    // ── 현재 열 너비 읽기 ──────────────────────────────────────────
+    function getCols() {
+      var s = window.getComputedStyle(layout).gridTemplateColumns.split(' ');
+      return { nav: parseFloat(s[0]), rl: parseFloat(s[1]),
+               cen: parseFloat(s[2]), rr: parseFloat(s[3]), det: parseFloat(s[4]) };
+    }
+
+    // ── 접기/펼치기 적용 (해제된 nav 공간을 cen/det에 비례 배분) ──
+    function applyCollapse() {
+      var c     = getCols();
+      var total = c.cen + c.det;
+      var ratio = total > 0 ? c.cen / total : 0.6;
+
+      if (isCollapsed) {
+        // nav가 사라지면서 생긴 공간 → cen + det 에 비례 배분
+        var freed = c.nav + (c.rl - COLLAPSED_RL); // rl: 5→22 이므로 -17
+        var newCen = Math.max(160, Math.round(c.cen + freed * ratio));
+        var newDet = Math.max(160, Math.round(c.det + freed * (1 - ratio)));
+        layout.style.gridTemplateColumns =
+          '0px ' + COLLAPSED_RL + 'px ' + newCen + 'px 5px ' + newDet + 'px';
+        layout.classList.add('nav-collapsed');
+        if (navToggle) { navToggle.textContent = '▶'; navToggle.title = '패널 펼치기'; }
+      } else {
+        // cen + det 에서 nav 공간 돌려받기
+        var navW      = parseFloat(localStorage.getItem(LS_NAV_W)) || 280;
+        var freedBack = navW + 5 - COLLAPSED_RL; // rl: 22→5 이므로 navW - 17
+        var newCen = Math.max(160, Math.round(c.cen - freedBack * ratio));
+        var newDet = Math.max(160, Math.round(c.det - freedBack * (1 - ratio)));
+        layout.style.gridTemplateColumns =
+          navW + 'px 5px ' + newCen + 'px 5px ' + newDet + 'px';
+        layout.classList.remove('nav-collapsed');
+        if (navToggle) { navToggle.textContent = '◀'; navToggle.title = '패널 접기'; }
+        localStorage.setItem(LS_COLS, layout.style.gridTemplateColumns);
+      }
+      localStorage.setItem(LS_COLLAPSED, isCollapsed ? '1' : '0');
+    }
+
+    if (isCollapsed) applyCollapse();
+
+    // ── 토글 버튼 클릭 ─────────────────────────────────────────────
+    if (navToggle) {
+      navToggle.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (!isCollapsed) {
+          localStorage.setItem(LS_NAV_W, getCols().nav); // 현재 nav 너비 저장
+        }
+        isCollapsed = !isCollapsed;
+        applyCollapse();
+        // 펼칠 때 전체 레이아웃 col 저장
+        if (!isCollapsed) localStorage.setItem(LS_COLS, layout.style.gridTemplateColumns);
+      });
+    }
+
+    // ── 드래그 리사이즈 ───────────────────────────────────────────
+    function initResize(resizer, which) {
+      resizer.addEventListener('mousedown', function (e) {
+        if (e.target === navToggle) return;          // 토글 버튼 클릭은 제외
+        if (isCollapsed && which === 'left') return; // 접힌 상태에서 좌측 드래그 비활성
+        e.preventDefault();
+        var startX     = e.clientX;
+        var startNavW  = document.getElementById('nav').offsetWidth;
+        var startCentW = document.getElementById('center').offsetWidth;
+        var startDetW  = document.getElementById('detail').offsetWidth;
+        resizer.classList.add('dragging');
+        document.body.style.cursor     = 'col-resize';
+        document.body.style.userSelect = 'none';
+
+        function onMove(e) {
+          var dx = e.clientX - startX;
+          var navW, centW, detW;
+          if (which === 'left') {
+            navW  = Math.max(120, startNavW  + dx);
+            centW = Math.max(160, startCentW - (navW - startNavW));
+            detW  = startDetW;
+          } else {
+            navW  = startNavW;
+            centW = Math.max(160, startCentW + dx);
+            detW  = Math.max(160, startDetW  - (centW - startCentW));
+          }
+          layout.style.gridTemplateColumns = navW + 'px 5px ' + centW + 'px 5px ' + detW + 'px';
+        }
+
+        function onUp() {
+          resizer.classList.remove('dragging');
+          document.body.style.cursor     = '';
+          document.body.style.userSelect = '';
+          var cols = layout.style.gridTemplateColumns;
+          localStorage.setItem(LS_COLS, cols);
+          if (which === 'left')
+            localStorage.setItem(LS_NAV_W, document.getElementById('nav').offsetWidth);
+          document.removeEventListener('mousemove', onMove);
+          document.removeEventListener('mouseup',   onUp);
+        }
+
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup',   onUp);
+      });
+    }
+
+    initResize(rLeft,  'left');
+    initResize(rRight, 'right');
+  })();
+  </script>
+</body>
+</html>

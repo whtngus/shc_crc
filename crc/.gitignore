@@ -1,0 +1,38 @@
+.temp/
+*.log
+.env
+.env.local
+*.local.env
+.env.mariadb
+.omc/
+
+# 브라우저 자동화 산출물
+.playwright-mcp/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Node
+node_modules/
+
+# 빌드 산출물
+dist/
+
+# OS·에디터
+Thumbs.db
+.DS_Store
+*.swp
+.idea/
+.vscode/
+
+# 실행 시 생성하는 합성 SQLite 데이터
+data/s22/
+hybrid-ai-lab/data/s22/
+hybrid-ai-lab/vector/data/
+.pytest_cache/
+
+# PPT 렌더 결과물(미리보기 PNG·초안 pptx·PDF)
+temp/*/out/
