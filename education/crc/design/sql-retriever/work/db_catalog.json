@@ -1,0 +1,1057 @@
+{
+  "generated_on": "2026-10-15",
+  "connection": {
+    "db_type": "PostgreSQL",
+    "server_version": "18.4",
+    "host": "localhost",
+    "port": 5432,
+    "dbname": "cardlab",
+    "user": "cardlab",
+    "password_source": "secrets/.env RDB_PASSWORD (값은 기록하지 않음)",
+    "session_read_only": "on"
+  },
+  "connect_user_role": {
+    "rolname": "cardlab",
+    "rolsuper": true,
+    "rolcreaterole": true,
+    "rolcreatedb": true,
+    "rolbypassrls": true
+  },
+  "connect_user_admin_flags": [
+    "rolsuper",
+    "rolcreaterole",
+    "rolcreatedb",
+    "rolbypassrls"
+  ],
+  "admin_account_allowed_by_user": true,
+  "nl2sql_role": {
+    "rolname": "sql_retriever_user",
+    "rolsuper": false,
+    "rolcreaterole": false,
+    "rolcreatedb": false,
+    "rolbypassrls": false
+  },
+  "schemas": [
+    {
+      "schema": "app",
+      "comment": "NL2SQL이 볼 수 있는 논리 읽기 모델. 원본 카드ID를 포함하지 않음.",
+      "usage_by_connect_user": true,
+      "usage_by_nl2sql_role": true,
+      "create_by_nl2sql_role": false
+    },
+    {
+      "schema": "app_internal",
+      "comment": "서비스 코드 전용. 원본 카드ID와 조립용 중간 뷰가 있어 NL2SQL에 노출하지 않음.",
+      "usage_by_connect_user": true,
+      "usage_by_nl2sql_role": true,
+      "create_by_nl2sql_role": false
+    },
+    {
+      "schema": "private",
+      "comment": "가명 ID의 재식별 열쇠(추가정보)만 두는 스키마. 실습 계정은 접근할 수 없음.",
+      "usage_by_connect_user": true,
+      "usage_by_nl2sql_role": false,
+      "create_by_nl2sql_role": false
+    },
+    {
+      "schema": "public",
+      "comment": "standard public schema",
+      "usage_by_connect_user": true,
+      "usage_by_nl2sql_role": true,
+      "create_by_nl2sql_role": false
+    }
+  ],
+  "views": [
+    {
+      "schema": "app",
+      "name": "customer_cards",
+      "comment": null,
+      "owner": "app_reader",
+      "options": "security_barrier=true",
+      "select_by_connect_user": true,
+      "select_by_nl2sql_role": true,
+      "columns": [
+        {
+          "name": "card_ref",
+          "type": "text",
+          "comment": null
+        },
+        {
+          "name": "product_id",
+          "type": "text",
+          "comment": null
+        },
+        {
+          "name": "product_name",
+          "type": "text",
+          "comment": null
+        },
+        {
+          "name": "brand",
+          "type": "text",
+          "comment": null
+        },
+        {
+          "name": "issue_date",
+          "type": "date",
+          "comment": null
+        },
+        {
+          "name": "current_status",
+          "type": "text",
+          "comment": null
+        },
+        {
+          "name": "product_effective_date",
+          "type": "date",
+          "comment": null
+        },
+        {
+          "name": "is_product_effective_on_base_date",
+          "type": "boolean",
+          "comment": null
+        },
+        {
+          "name": "annual_fee",
+          "type": "integer",
+          "comment": null
+        }
+      ],
+      "limit0_connect_user": "ok",
+      "limit0_nl2sql_role": "ok"
+    },
+    {
+      "schema": "app",
+      "name": "customer_daily_usage",
+      "comment": null,
+      "owner": "app_reader",
+      "options": "security_barrier=true",
+      "select_by_connect_user": true,
+      "select_by_nl2sql_role": true,
+      "columns": [
+        {
+          "name": "usage_date",
+          "type": "date",
+          "comment": null
+        },
+        {
+          "name": "approved_amount",
+          "type": "bigint",
+          "comment": null
+        },
+        {
+          "name": "transaction_count",
+          "type": "integer",
+          "comment": null
+        }
+      ],
+      "limit0_connect_user": "ok",
+      "limit0_nl2sql_role": "ok"
+    },
+    {
+      "schema": "app",
+      "name": "customer_delinquency",
+      "comment": null,
+      "owner": "app_reader",
+      "options": "security_barrier=true",
+      "select_by_connect_user": true,
+      "select_by_nl2sql_role": true,
+      "columns": [
+        {
+          "name": "base_month",
+          "type": "character(7)",
+          "comment": null
+        },
+        {
+          "name": "as_of_date",
+          "type": "date",
+          "comment": null
+        },
+        {
+          "name": "overdue_amount",
+          "type": "integer",
+          "comment": null
+        },
+        {
+          "name": "overdue_days",
+          "type": "integer",
+          "comment": null
+        },
+        {
+          "name": "overdue_count_12m",
+          "type": "integer",
+          "comment": null
+        }
+      ],
+      "limit0_connect_user": "ok",
+      "limit0_nl2sql_role": "ok"
+    },
+    {
+      "schema": "app",
+      "name": "customer_delinquency_history",
+      "comment": null,
+      "owner": "app_reader",
+      "options": "security_barrier=true",
+      "select_by_connect_user": true,
+      "select_by_nl2sql_role": true,
+      "columns": [
+        {
+          "name": "base_month",
+          "type": "character(7)",
+          "comment": null
+        },
+        {
+          "name": "as_of_date",
+          "type": "date",
+          "comment": null
+        },
+        {
+          "name": "overdue_amount",
+          "type": "integer",
+          "comment": null
+        },
+        {
+          "name": "overdue_days",
+          "type": "integer",
+          "comment": null
+        },
+        {
+          "name": "overdue_count_12m",
+          "type": "integer",
+          "comment": null
+        }
+      ],
+      "limit0_connect_user": "ok",
+      "limit0_nl2sql_role": "ok"
+    },
+    {
+      "schema": "app",
+      "name": "customer_profile",
+      "comment": null,
+      "owner": "app_reader",
+      "options": "security_barrier=true",
+      "select_by_connect_user": true,
+      "select_by_nl2sql_role": true,
+      "columns": [
+        {
+          "name": "join_date",
+          "type": "date",
+          "comment": null
+        },
+        {
+          "name": "age_band",
+          "type": "text",
+          "comment": null
+        }
+      ],
+      "limit0_connect_user": "ok",
+      "limit0_nl2sql_role": "ok"
+    },
+    {
+      "schema": "app",
+      "name": "merchant_usage",
+      "comment": null,
+      "owner": "app_reader",
+      "options": "security_barrier=true",
+      "select_by_connect_user": true,
+      "select_by_nl2sql_role": true,
+      "columns": [
+        {
+          "name": "card_ref",
+          "type": "text",
+          "comment": null
+        },
+        {
+          "name": "month",
+          "type": "text",
+          "comment": null
+        },
+        {
+          "name": "period_start",
+          "type": "date",
+          "comment": null
+        },
+        {
+          "name": "period_end",
+          "type": "date",
+          "comment": null
+        },
+        {
+          "name": "merchant_name",
+          "type": "text",
+          "comment": null
+        },
+        {
+          "name": "category",
+          "type": "text",
+          "comment": null
+        },
+        {
+          "name": "first_approved_date",
+          "type": "date",
+          "comment": null
+        },
+        {
+          "name": "last_approved_date",
+          "type": "date",
+          "comment": null
+        },
+        {
+          "name": "approved_amount",
+          "type": "bigint",
+          "comment": null
+        },
+        {
+          "name": "transaction_count",
+          "type": "integer",
+          "comment": null
+        }
+      ],
+      "limit0_connect_user": "ok",
+      "limit0_nl2sql_role": "ok"
+    },
+    {
+      "schema": "app",
+      "name": "monthly_usage",
+      "comment": null,
+      "owner": "app_reader",
+      "options": "security_barrier=true",
+      "select_by_connect_user": true,
+      "select_by_nl2sql_role": true,
+      "columns": [
+        {
+          "name": "card_ref",
+          "type": "text",
+          "comment": null
+        },
+        {
+          "name": "month",
+          "type": "text",
+          "comment": null
+        },
+        {
+          "name": "period_start",
+          "type": "date",
+          "comment": null
+        },
+        {
+          "name": "period_end",
+          "type": "date",
+          "comment": null
+        },
+        {
+          "name": "approved_amount",
+          "type": "bigint",
+          "comment": null
+        },
+        {
+          "name": "transaction_count",
+          "type": "integer",
+          "comment": null
+        }
+      ],
+      "limit0_connect_user": "ok",
+      "limit0_nl2sql_role": "ok"
+    },
+    {
+      "schema": "app_internal",
+      "name": "customer_cards_full",
+      "comment": null,
+      "owner": "app_reader",
+      "options": "security_barrier=true",
+      "select_by_connect_user": true,
+      "select_by_nl2sql_role": true,
+      "columns": [
+        {
+          "name": "card_id",
+          "type": "text",
+          "comment": null
+        },
+        {
+          "name": "card_ref",
+          "type": "text",
+          "comment": null
+        },
+        {
+          "name": "product_id",
+          "type": "text",
+          "comment": null
+        },
+        {
+          "name": "product_name",
+          "type": "text",
+          "comment": null
+        },
+        {
+          "name": "brand",
+          "type": "text",
+          "comment": null
+        },
+        {
+          "name": "issue_date",
+          "type": "date",
+          "comment": null
+        },
+        {
+          "name": "current_status",
+          "type": "text",
+          "comment": null
+        },
+        {
+          "name": "product_effective_date",
+          "type": "date",
+          "comment": null
+        },
+        {
+          "name": "is_product_effective_on_base_date",
+          "type": "boolean",
+          "comment": null
+        },
+        {
+          "name": "annual_fee",
+          "type": "integer",
+          "comment": null
+        }
+      ],
+      "limit0_connect_user": "ok",
+      "limit0_nl2sql_role": "ok"
+    },
+    {
+      "schema": "app_internal",
+      "name": "member_basic",
+      "comment": null,
+      "owner": "app_reader",
+      "options": "security_barrier=true",
+      "select_by_connect_user": true,
+      "select_by_nl2sql_role": true,
+      "columns": [
+        {
+          "name": "member_id",
+          "type": "text",
+          "comment": null
+        },
+        {
+          "name": "join_date",
+          "type": "date",
+          "comment": null
+        },
+        {
+          "name": "age_band",
+          "type": "text",
+          "comment": null
+        }
+      ],
+      "limit0_connect_user": "ok",
+      "limit0_nl2sql_role": "ok"
+    },
+    {
+      "schema": "app_internal",
+      "name": "request_scope",
+      "comment": null,
+      "owner": "app_reader",
+      "options": "security_barrier=true",
+      "select_by_connect_user": true,
+      "select_by_nl2sql_role": false,
+      "columns": [
+        {
+          "name": "base_date",
+          "type": "date",
+          "comment": null
+        },
+        {
+          "name": "coverage_start",
+          "type": "date",
+          "comment": null
+        }
+      ],
+      "limit0_connect_user": "ok",
+      "limit0_nl2sql_role": "error: 42501 permission denied for view request_scope"
+    },
+    {
+      "schema": "app_internal",
+      "name": "usage_months",
+      "comment": null,
+      "owner": "app_reader",
+      "options": "security_barrier=true",
+      "select_by_connect_user": true,
+      "select_by_nl2sql_role": false,
+      "columns": [
+        {
+          "name": "month_start",
+          "type": "date",
+          "comment": null
+        }
+      ],
+      "limit0_connect_user": "ok",
+      "limit0_nl2sql_role": "error: 42501 permission denied for view usage_months"
+    },
+    {
+      "schema": "app",
+      "name": "vip_monthly_trend",
+      "comment": "최근 6개월 월별 승인 사용액(모든 카드 합계)과 전월 대비 증감. 기준일이 속한 달이 월말 전이면 is_partial_month가 true임.",
+      "owner": "app_reader",
+      "options": "security_barrier=true",
+      "select_by_connect_user": null,
+      "select_by_nl2sql_role": true,
+      "columns": [
+        {
+          "name": "month",
+          "type": "text",
+          "comment": null
+        },
+        {
+          "name": "approved_amount",
+          "type": "bigint",
+          "comment": null
+        },
+        {
+          "name": "transaction_count",
+          "type": "integer",
+          "comment": null
+        },
+        {
+          "name": "prev_month_amount",
+          "type": "bigint",
+          "comment": null
+        },
+        {
+          "name": "change_amount",
+          "type": "bigint",
+          "comment": null
+        },
+        {
+          "name": "change_rate_pct",
+          "type": "numeric",
+          "comment": null
+        },
+        {
+          "name": "is_partial_month",
+          "type": "boolean",
+          "comment": null
+        }
+      ],
+      "limit0_ok": null,
+      "verified_by_db": false,
+      "source": "rdb/init/07_vip_churn_views.sql 에서 정적으로 옮김(2026-10-19, DB 미접속). 권한은 GRANT 문 기준이며 실제 확인 전임."
+    },
+    {
+      "schema": "app",
+      "name": "vip_annual_fee_burden",
+      "comment": "카드별 연회비와 최근 6개월 사용액. yearly_usage_to_fee_ratio는 월평균 사용액을 12배 한 값을 연회비로 나눈 배수이며 연회비가 0이면 NULL임.",
+      "owner": "app_reader",
+      "options": "security_barrier=true",
+      "select_by_connect_user": null,
+      "select_by_nl2sql_role": true,
+      "columns": [
+        {
+          "name": "card_ref",
+          "type": "text",
+          "comment": null
+        },
+        {
+          "name": "product_name",
+          "type": "text",
+          "comment": null
+        },
+        {
+          "name": "annual_fee",
+          "type": "integer",
+          "comment": null
+        },
+        {
+          "name": "recent_period_amount",
+          "type": "bigint",
+          "comment": null
+        },
+        {
+          "name": "usage_month_count",
+          "type": "integer",
+          "comment": null
+        },
+        {
+          "name": "avg_monthly_amount",
+          "type": "bigint",
+          "comment": null
+        },
+        {
+          "name": "yearly_usage_to_fee_ratio",
+          "type": "numeric",
+          "comment": null
+        }
+      ],
+      "limit0_ok": null,
+      "verified_by_db": false,
+      "source": "rdb/init/07_vip_churn_views.sql 에서 정적으로 옮김(2026-10-19, DB 미접속). 권한은 GRANT 문 기준이며 실제 확인 전임."
+    },
+    {
+      "schema": "app",
+      "name": "vip_activity_signal",
+      "comment": "마지막 승인일과 경과일, 최근 30일과 그 이전 30일의 승인 건수와 금액(고객 1행). 거래가 없으면 건수와 금액은 0이고 마지막 승인일은 NULL임.",
+      "owner": "app_reader",
+      "options": "security_barrier=true",
+      "select_by_connect_user": null,
+      "select_by_nl2sql_role": true,
+      "columns": [
+        {
+          "name": "last_approved_date",
+          "type": "date",
+          "comment": null
+        },
+        {
+          "name": "days_since_last_approved",
+          "type": "integer",
+          "comment": null
+        },
+        {
+          "name": "approved_count_last_30d",
+          "type": "integer",
+          "comment": null
+        },
+        {
+          "name": "approved_count_prev_30d",
+          "type": "integer",
+          "comment": null
+        },
+        {
+          "name": "approved_amount_last_30d",
+          "type": "bigint",
+          "comment": null
+        },
+        {
+          "name": "approved_amount_prev_30d",
+          "type": "bigint",
+          "comment": null
+        }
+      ],
+      "limit0_ok": null,
+      "verified_by_db": false,
+      "source": "rdb/init/07_vip_churn_views.sql 에서 정적으로 옮김(2026-10-19, DB 미접속). 권한은 GRANT 문 기준이며 실제 확인 전임."
+    },
+    {
+      "schema": "app",
+      "name": "vip_category_share",
+      "comment": "최근 6개월 업종별 승인 사용액과 건수, 전체 대비 비중(%)과 사용액 순위. 순위 1이 주 사용 업종임.",
+      "owner": "app_reader",
+      "options": "security_barrier=true",
+      "select_by_connect_user": null,
+      "select_by_nl2sql_role": true,
+      "columns": [
+        {
+          "name": "category",
+          "type": "text",
+          "comment": null
+        },
+        {
+          "name": "approved_amount",
+          "type": "bigint",
+          "comment": null
+        },
+        {
+          "name": "transaction_count",
+          "type": "integer",
+          "comment": null
+        },
+        {
+          "name": "share_pct",
+          "type": "numeric",
+          "comment": null
+        },
+        {
+          "name": "amount_rank",
+          "type": "integer",
+          "comment": null
+        }
+      ],
+      "limit0_ok": null,
+      "verified_by_db": false,
+      "source": "rdb/init/07_vip_churn_views.sql 에서 정적으로 옮김(2026-10-19, DB 미접속). 권한은 GRANT 문 기준이며 실제 확인 전임."
+    },
+    {
+      "schema": "app",
+      "name": "vip_churn_signal_summary",
+      "comment": "이탈 신호 종합(고객 1행). 최근 3개월 월평균 사용액과 그 이전 달들의 월평균 비교(부분 월 제외), 마지막 승인 경과일, 최근 30일과 이전 30일 승인 건수.",
+      "owner": "app_reader",
+      "options": "security_barrier=true",
+      "select_by_connect_user": null,
+      "select_by_nl2sql_role": true,
+      "columns": [
+        {
+          "name": "recent_3m_avg_amount",
+          "type": "bigint",
+          "comment": null
+        },
+        {
+          "name": "prev_avg_amount",
+          "type": "bigint",
+          "comment": null
+        },
+        {
+          "name": "recent_month_count",
+          "type": "integer",
+          "comment": null
+        },
+        {
+          "name": "prev_month_count",
+          "type": "integer",
+          "comment": null
+        },
+        {
+          "name": "change_rate_pct",
+          "type": "numeric",
+          "comment": null
+        },
+        {
+          "name": "days_since_last_approved",
+          "type": "integer",
+          "comment": null
+        },
+        {
+          "name": "approved_count_last_30d",
+          "type": "integer",
+          "comment": null
+        },
+        {
+          "name": "approved_count_prev_30d",
+          "type": "integer",
+          "comment": null
+        }
+      ],
+      "limit0_ok": null,
+      "verified_by_db": false,
+      "source": "rdb/init/07_vip_churn_views.sql 에서 정적으로 옮김(2026-10-19, DB 미접속). 권한은 GRANT 문 기준이며 실제 확인 전임."
+    }
+  ],
+  "tables": [
+    {
+      "schema": "private",
+      "name": "member_id_map",
+      "rls_enabled": false,
+      "rls_forced": false,
+      "owner": "cardlab",
+      "select_by_connect_user": true,
+      "select_by_nl2sql_role": false,
+      "columns": [
+        {
+          "name": "source_member_no",
+          "type": "character(8)"
+        },
+        {
+          "name": "member_id",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "schema": "public",
+      "name": "card",
+      "rls_enabled": true,
+      "rls_forced": false,
+      "owner": "cardlab",
+      "select_by_connect_user": true,
+      "select_by_nl2sql_role": false,
+      "columns": [
+        {
+          "name": "card_id",
+          "type": "text"
+        },
+        {
+          "name": "member_id",
+          "type": "text"
+        },
+        {
+          "name": "product_id",
+          "type": "text"
+        },
+        {
+          "name": "brand",
+          "type": "text"
+        },
+        {
+          "name": "issue_date",
+          "type": "date"
+        },
+        {
+          "name": "status",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "schema": "public",
+      "name": "card_txn",
+      "rls_enabled": true,
+      "rls_forced": false,
+      "owner": "cardlab",
+      "select_by_connect_user": true,
+      "select_by_nl2sql_role": false,
+      "columns": [
+        {
+          "name": "txn_id",
+          "type": "text"
+        },
+        {
+          "name": "card_id",
+          "type": "text"
+        },
+        {
+          "name": "merchant_id",
+          "type": "text"
+        },
+        {
+          "name": "txn_date",
+          "type": "date"
+        },
+        {
+          "name": "amount",
+          "type": "integer"
+        },
+        {
+          "name": "approval_code",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "schema": "public",
+      "name": "delinquency",
+      "rls_enabled": true,
+      "rls_forced": false,
+      "owner": "cardlab",
+      "select_by_connect_user": true,
+      "select_by_nl2sql_role": false,
+      "columns": [
+        {
+          "name": "member_id",
+          "type": "text"
+        },
+        {
+          "name": "base_month",
+          "type": "character(7)"
+        },
+        {
+          "name": "overdue_days",
+          "type": "integer"
+        },
+        {
+          "name": "overdue_count_12m",
+          "type": "integer"
+        },
+        {
+          "name": "overdue_amount",
+          "type": "integer"
+        }
+      ]
+    },
+    {
+      "schema": "public",
+      "name": "lab_metadata",
+      "rls_enabled": false,
+      "rls_forced": false,
+      "owner": "cardlab",
+      "select_by_connect_user": true,
+      "select_by_nl2sql_role": true,
+      "columns": [
+        {
+          "name": "key",
+          "type": "text"
+        },
+        {
+          "name": "value",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "schema": "public",
+      "name": "member",
+      "rls_enabled": true,
+      "rls_forced": false,
+      "owner": "cardlab",
+      "select_by_connect_user": true,
+      "select_by_nl2sql_role": false,
+      "columns": [
+        {
+          "name": "member_id",
+          "type": "text"
+        },
+        {
+          "name": "segment_id",
+          "type": "smallint"
+        },
+        {
+          "name": "join_date",
+          "type": "date"
+        },
+        {
+          "name": "age_band",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "schema": "public",
+      "name": "merchant",
+      "rls_enabled": false,
+      "rls_forced": false,
+      "owner": "cardlab",
+      "select_by_connect_user": true,
+      "select_by_nl2sql_role": false,
+      "columns": [
+        {
+          "name": "merchant_id",
+          "type": "text"
+        },
+        {
+          "name": "merchant_name",
+          "type": "text"
+        },
+        {
+          "name": "category",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "schema": "public",
+      "name": "product",
+      "rls_enabled": false,
+      "rls_forced": false,
+      "owner": "cardlab",
+      "select_by_connect_user": true,
+      "select_by_nl2sql_role": false,
+      "columns": [
+        {
+          "name": "product_id",
+          "type": "text"
+        },
+        {
+          "name": "product_name",
+          "type": "text"
+        },
+        {
+          "name": "effective_date",
+          "type": "date"
+        },
+        {
+          "name": "family_card_available",
+          "type": "boolean"
+        },
+        {
+          "name": "family_card_rule",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "schema": "public",
+      "name": "product_annual_fee",
+      "rls_enabled": false,
+      "rls_forced": false,
+      "owner": "cardlab",
+      "select_by_connect_user": true,
+      "select_by_nl2sql_role": false,
+      "columns": [
+        {
+          "name": "product_id",
+          "type": "text"
+        },
+        {
+          "name": "brand",
+          "type": "text"
+        },
+        {
+          "name": "base_fee",
+          "type": "integer"
+        },
+        {
+          "name": "service_fee",
+          "type": "integer"
+        },
+        {
+          "name": "total_fee",
+          "type": "integer"
+        }
+      ]
+    }
+  ],
+  "rls_policies": [
+    {
+      "schema": "public",
+      "table": "card",
+      "policy": "card_session_scope",
+      "cmd": "SELECT",
+      "roles": "{app_reader}",
+      "qual": "(member_id = NULLIF(current_setting('app.member_id'::text, true), ''::text))"
+    },
+    {
+      "schema": "public",
+      "table": "card_txn",
+      "policy": "card_txn_session_scope",
+      "cmd": "SELECT",
+      "roles": "{app_reader}",
+      "qual": "(EXISTS ( SELECT 1\n   FROM card scoped_card\n  WHERE ((scoped_card.card_id = card_txn.card_id) AND (scoped_card.member_id = NULLIF(current_setting('app.member_id'::text, true), ''::text)))))"
+    },
+    {
+      "schema": "public",
+      "table": "delinquency",
+      "policy": "delinquency_session_scope",
+      "cmd": "SELECT",
+      "roles": "{app_reader}",
+      "qual": "(member_id = NULLIF(current_setting('app.member_id'::text, true), ''::text))"
+    },
+    {
+      "schema": "public",
+      "table": "member",
+      "policy": "member_session_scope",
+      "cmd": "SELECT",
+      "roles": "{app_reader}",
+      "qual": "(member_id = NULLIF(current_setting('app.member_id'::text, true), ''::text))"
+    }
+  ],
+  "view_sql_files": [
+    "rdb/init/04_views_rls.sql",
+    "rdb/init/05_merchant_usage.sql",
+    "rdb/init/06_history_daily_usage.sql",
+    "rdb/init/07_vip_churn_views.sql"
+  ],
+  "compare": {
+    "only_in_view_sql": [],
+    "only_in_db": []
+  },
+  "summary": {
+    "views_total": 16,
+    "views_accessible_by_connect_user": 11,
+    "views_accessible_by_nl2sql_role": 14,
+    "nl2sql_role_accessible_views": [
+      "app.customer_cards",
+      "app.customer_daily_usage",
+      "app.customer_delinquency",
+      "app.customer_delinquency_history",
+      "app.customer_profile",
+      "app.merchant_usage",
+      "app.monthly_usage",
+      "app.vip_activity_signal",
+      "app.vip_annual_fee_burden",
+      "app.vip_category_share",
+      "app.vip_churn_signal_summary",
+      "app.vip_monthly_trend",
+      "app_internal.customer_cards_full",
+      "app_internal.member_basic"
+    ],
+    "base_tables_readable_by_nl2sql_role": [
+      "public.lab_metadata"
+    ],
+    "base_tables_readable_by_connect_user": [
+      "private.member_id_map",
+      "public.card",
+      "public.card_txn",
+      "public.delinquency",
+      "public.lab_metadata",
+      "public.member",
+      "public.merchant",
+      "public.product",
+      "public.product_annual_fee"
+    ],
+    "note_3jo": "2026-10-19 3조가 app 뷰 5개를 더함. 이 5개는 DB를 실행하지 못해 SQL에서 옮긴 값이며 views_accessible_by_connect_user(11)에는 포함하지 않음. 팀원 PC에서 read_views.py로 다시 읽어 맞춰야 함."
+  }
+}

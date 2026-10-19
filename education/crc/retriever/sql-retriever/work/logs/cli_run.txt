@@ -1,0 +1,175 @@
+### python run_cli.py --member-id M-5001 --question 보유 카드 목록 보여 주세요 --request-id cli-fixed
+2026-10-15 02:05:21,917 INFO sql_retriever.llm planner ok attempt=1 input_tokens=2136 output_tokens=106
+{
+  "request_id": "cli-fixed",
+  "status": "OK",
+  "route": "FIXED",
+  "query_id": "FQ-02",
+  "plan_source": "LLM",
+  "columns": [
+    {
+      "name": "card_ref",
+      "type": "text"
+    },
+    {
+      "name": "product_name",
+      "type": "text"
+    },
+    {
+      "name": "brand",
+      "type": "text"
+    },
+    {
+      "name": "issue_date",
+      "type": "date"
+    },
+    {
+      "name": "current_status",
+      "type": "text"
+    },
+    {
+      "name": "annual_fee",
+      "type": "int4"
+    }
+  ],
+  "rows": [
+    {
+      "card_ref": "CARD_001",
+      "product_name": "한빛 가족돌봄",
+      "brand": "국내전용",
+      "issue_date": "2018-03-15",
+      "current_status": "ACTIVE",
+      "annual_fee": 0
+    },
+    {
+      "card_ref": "CARD_002",
+      "product_name": "한빛 살림시간",
+      "brand": "해외 B",
+      "issue_date": "2018-03-15",
+      "current_status": "ACTIVE",
+      "annual_fee": 17000
+    },
+    {
+      "card_ref": "CARD_003",
+      "product_name": "한빛 자유여행",
+      "brand": "국내전용",
+      "issue_date": "2018-03-15",
+      "current_status": "ACTIVE",
+      "annual_fee": 29000
+    },
+    {
+      "card_ref": "CARD_004",
+      "product_name": "한빛 하늘여정",
+      "brand": "해외 B",
+      "issue_date": "2018-03-15",
+      "current_status": "ACTIVE",
+      "annual_fee": 51000
+    }
+  ],
+  "row_count": 4,
+  "truncated": false,
+  "base_date": "2026-08-31",
+  "coverage_start": "2025-08-01",
+  "message": "기준일 2026-08-31 기준 4건",
+  "elapsed_ms": 706
+}
+exit=0
+
+### python run_cli.py --member-id M-5001 --question 7월에 가장 많이 쓴 가맹점 3곳 알려 주세요 --request-id cli-nl2sql
+2026-10-15 02:05:45,261 INFO sql_retriever.llm planner ok attempt=1 input_tokens=2146 output_tokens=213
+{
+  "request_id": "cli-nl2sql",
+  "status": "OK",
+  "route": "NL2SQL",
+  "query_id": null,
+  "plan_source": "LLM",
+  "columns": [
+    {
+      "name": "merchant_name",
+      "type": "text"
+    },
+    {
+      "name": "approved_amount",
+      "type": "numeric"
+    }
+  ],
+  "rows": [
+    {
+      "merchant_name": "가상 쇼핑 가맹점 018",
+      "approved_amount": 91236
+    },
+    {
+      "merchant_name": "가상 교육 가맹점 056",
+      "approved_amount": 91224
+    },
+    {
+      "merchant_name": "가상 교육 가맹점 032",
+      "approved_amount": 91224
+    }
+  ],
+  "row_count": 3,
+  "truncated": false,
+  "base_date": "2026-08-31",
+  "coverage_start": "2025-08-01",
+  "message": "기준일 2026-08-31 기준 3건",
+  "elapsed_ms": 1060
+}
+exit=0
+
+### python run_cli.py --member-id M-1001 --question 2025년 1월 일별 사용액 보여 주세요 --request-id cli-out-of-period
+2026-10-15 02:06:08,480 INFO sql_retriever.llm planner ok attempt=1 input_tokens=2142 output_tokens=245
+{
+  "request_id": "cli-out-of-period",
+  "status": "UNANSWERABLE",
+  "route": "NL2SQL",
+  "query_id": null,
+  "plan_source": "LLM",
+  "columns": [],
+  "rows": [],
+  "row_count": 0,
+  "truncated": false,
+  "base_date": "2026-08-31",
+  "coverage_start": "2025-08-01",
+  "message": "답할 수 없음: 데이터 제공 기간 밖",
+  "elapsed_ms": 950
+}
+exit=0
+
+### python run_cli.py --member-id M-9999 --question 보유 카드 목록 --request-id cli-notfound
+2026-10-15 02:06:10,863 WARNING sql_retriever.service workflow error request_id=cli-notfound stage=S-R1 code=MEMBER_NOT_FOUND detail=None
+{
+  "request_id": "cli-notfound",
+  "status": "ERROR",
+  "error_code": "MEMBER_NOT_FOUND",
+  "message": "회원을 찾을 수 없거나 기준일에 아직 가입 전인 회원입니다.",
+  "retryable": false
+}
+2026-10-15 02:06:15,908 WARNING psycopg.pool couldn't stop thread 'sql-retriever-worker-0' within 5.0 seconds
+2026-10-15 02:06:15,908 WARNING psycopg.pool hint: you can try to call 'close()' explicitly or to use the pool as context manager
+2026-10-15 02:06:20,922 WARNING psycopg.pool couldn't stop thread 'sql-retriever-worker-1' within 5.0 seconds
+2026-10-15 02:06:20,923 WARNING psycopg.pool hint: you can try to call 'close()' explicitly or to use the pool as context manager
+2026-10-15 02:06:25,927 WARNING psycopg.pool couldn't stop thread 'sql-retriever-worker-2' within 5.0 seconds
+2026-10-15 02:06:25,928 WARNING psycopg.pool hint: you can try to call 'close()' explicitly or to use the pool as context manager
+2026-10-15 02:06:30,939 WARNING psycopg.pool couldn't stop thread 'sql-retriever-scheduler' within 5.0 seconds
+2026-10-15 02:06:30,939 WARNING psycopg.pool hint: you can try to call 'close()' explicitly or to use the pool as context manager
+exit=1
+
+### python run_cli.py --member-id M-1001 --question 보유 카드 --base-date 2026-09-30 --request-id cli-invalid
+2026-10-15 02:06:33,555 WARNING sql_retriever.service workflow error request_id=cli-invalid stage=S-R1 code=INVALID_REQUEST detail=base_date_after_data_date
+{
+  "request_id": "cli-invalid",
+  "status": "ERROR",
+  "error_code": "INVALID_REQUEST",
+  "message": "요청 형식이 올바르지 않습니다. 질문, 회원ID, 기준일을 확인해 주세요.",
+  "retryable": false
+}
+2026-10-15 02:06:38,613 WARNING psycopg.pool couldn't stop thread 'sql-retriever-worker-0' within 5.0 seconds
+2026-10-15 02:06:38,613 WARNING psycopg.pool hint: you can try to call 'close()' explicitly or to use the pool as context manager
+2026-10-15 02:06:43,617 WARNING psycopg.pool couldn't stop thread 'sql-retriever-worker-1' within 5.0 seconds
+2026-10-15 02:06:43,617 WARNING psycopg.pool hint: you can try to call 'close()' explicitly or to use the pool as context manager
+2026-10-15 02:06:48,628 WARNING psycopg.pool couldn't stop thread 'sql-retriever-worker-2' within 5.0 seconds
+2026-10-15 02:06:48,628 WARNING psycopg.pool hint: you can try to call 'close()' explicitly or to use the pool as context manager
+2026-10-15 02:06:53,634 WARNING psycopg.pool couldn't stop thread 'sql-retriever-scheduler' within 5.0 seconds
+2026-10-15 02:06:53,634 WARNING psycopg.pool hint: you can try to call 'close()' explicitly or to use the pool as context manager
+exit=1
+

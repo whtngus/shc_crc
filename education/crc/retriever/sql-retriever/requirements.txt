@@ -1,0 +1,14 @@
+# SQL 검색기 패키지 목록(2026-10-15 PyPI 최신 안정판, 사용자 승인)
+langchain-core==1.6.10
+langchain-openai==1.7.2
+langgraph==1.2.15
+psycopg[binary]==3.3.6
+psycopg-pool==3.3.3
+sqlglot==30.22.0
+fastapi==0.143.1
+uvicorn==0.54.0
+pydantic==2.14.1
+python-dotenv==1.2.4
+# 시험
+pytest==9.1.1
+httpx==0.28.1

@@ -1,0 +1,26 @@
+| ID | 정답 | LLM 선택 | requested_period | 다음 단계 시뮬레이션 |
+|----|------|----------|------------------|---------------------|
+| F01-D | FIXED/FQ-01 | NL2SQL | None ~ None | 검사 실패(FUNCTION_NOT_ALLOWED)→재계획 |
+| F03-2 | FIXED/FQ-03 | NL2SQL | 2026-03-01 ~ 2026-08-31 | NL2SQL 실행 |
+| F03-5 | FIXED/FQ-03 | NL2SQL | 2026-03-01 ~ 2026-08-31 | NL2SQL 실행 |
+| F03-D | FIXED/FQ-03 | NL2SQL | 2026-07-01 ~ 2026-07-31 | NL2SQL 실행 |
+| F04-2 | FIXED/FQ-04 | NL2SQL | 2026-03-01 ~ 2026-08-31 | NL2SQL 실행 |
+| F04-D | FIXED/FQ-04 | NL2SQL | 2026-07-01 ~ 2026-07-31 | NL2SQL 실행 |
+| F05-1 | FIXED/FQ-05 | NL2SQL | None ~ None | NL2SQL 실행 |
+| F05-3 | FIXED/FQ-05 | NL2SQL | 2026-03-01 ~ 2026-08-31 | NL2SQL 실행 |
+| F05-4 | FIXED/FQ-05 | NL2SQL | 2026-03-01 ~ 2026-08-31 | NL2SQL 실행 |
+| F05-D | FIXED/FQ-05 | NL2SQL | 2025-08-01 ~ 2026-08-31 | OUT_OF_PERIOD→UNANSWERABLE |
+| F06-D | FIXED/FQ-06 | NL2SQL | 2025-09-01 ~ 2026-08-31 | NL2SQL 실행 |
+| F07-5 | FIXED/FQ-07 | NL2SQL | None ~ None | NL2SQL 실행 |
+| F07-D | FIXED/FQ-07 | NL2SQL | 2025-09-01 ~ 2026-08-31 | NL2SQL 실행 |
+| F08-2 | FIXED/FQ-08 | NL2SQL | 2026-06-03 ~ 2026-08-31 | NL2SQL 실행 |
+| F08-3 | FIXED/FQ-08 | NL2SQL | 2026-06-03 ~ 2026-08-31 | NL2SQL 실행 |
+| F08-4 | FIXED/FQ-08 | NL2SQL | 2026-06-01 ~ 2026-08-31 | OUT_OF_PERIOD→UNANSWERABLE |
+| F08-5 | FIXED/FQ-08 | NL2SQL | 2026-06-03 ~ 2026-08-31 | NL2SQL 실행 |
+
+| 정답→선택: 다음 단계 결과 | 문항 수 |
+|---------------------------|--------|
+| FIXED→FIXED: FIXED 실행 | 2 |
+| FIXED→NL2SQL: NL2SQL 실행 | 14 |
+| FIXED→NL2SQL: OUT_OF_PERIOD→UNANSWERABLE | 2 |
+| FIXED→NL2SQL: 검사 실패(FUNCTION_NOT_ALLOWED)→재계획 | 1 |

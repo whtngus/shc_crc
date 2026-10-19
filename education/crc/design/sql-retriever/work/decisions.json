@@ -1,0 +1,411 @@
+{
+  "workflow_id": "W-1",
+  "workflow_name": "SQL 검색기",
+  "recorded_on": "2026-10-15",
+  "note": "3단계 설계 결정 기록. 사용자 답은 그대로 옮김. 결정자 '사용자'는 이 설계를 요청한 사람(hiondal)임.",
+  "inputs": [
+    {
+      "item": "출력 기준 폴더",
+      "value": "design/sql-retriever",
+      "decided_by": "사용자(기본값 수락)",
+      "date": "2026-10-15"
+    },
+    {
+      "item": "DB 접속",
+      "value": "PostgreSQL 18, localhost:5432, DB cardlab",
+      "decided_by": "사용자(기본값 수락)",
+      "date": "2026-10-15"
+    },
+    {
+      "item": "DB 구조 읽기 접속 계정",
+      "value": "cardlab",
+      "user_answer": "계정은 cardlab을 사용하고 암호는 secrets/.env 파일 참조해",
+      "decided_by": "사용자",
+      "date": "2026-10-15"
+    },
+    {
+      "item": "관리자 계정 예외",
+      "value": "cardlab이 관리자(rolsuper, rolcreaterole, rolcreatedb, rolbypassrls)임을 알린 뒤에도 cardlab 사용",
+      "user_answer": "그래도 cardlab 사용",
+      "decided_by": "사용자",
+      "date": "2026-10-15",
+      "mitigation": "세션 읽기 전용(default_transaction_read_only=on), 데이터 행 미조회(LIMIT 0, EXPLAIN만), 권한 계산과 접근 확인은 SET LOCAL ROLE sql_retriever_user로 수행"
+    },
+    {
+      "item": "비밀번호 출처",
+      "value": "secrets/.env의 RDB_PASSWORD (값은 기록하지 않음)",
+      "decided_by": "사용자",
+      "date": "2026-10-15"
+    },
+    {
+      "item": "View 생성 SQL",
+      "value": [
+        "rdb/init/04_views_rls.sql",
+        "rdb/init/05_merchant_usage.sql",
+        "rdb/init/06_history_daily_usage.sql"
+      ],
+      "user_answer": "05, 06도 포함",
+      "decided_by": "사용자",
+      "date": "2026-10-15",
+      "reason": "DB에만 있던 뷰 3개(merchant_usage, customer_delinquency_history, customer_daily_usage)가 05, 06에서 만들어졌음"
+    },
+    {
+      "item": "워크플로우",
+      "value": "프롬프트 <workflow> 그대로(6단계, 동기 요청)",
+      "decided_by": "사용자(기본값 수락)",
+      "date": "2026-10-15"
+    },
+    {
+      "item": "관련 유저스토리",
+      "value": "없음",
+      "decided_by": "사용자(기본값 수락)",
+      "date": "2026-10-15"
+    }
+  ],
+  "decisions": [
+    {
+      "id": "D-01",
+      "item": "SQL 실행 계정(권한 범위와 SQL 검증 규칙의 기준)",
+      "value": "sql_retriever_user",
+      "user_answer": "sql_retriever_user",
+      "decided_by": "사용자",
+      "date": "2026-10-15",
+      "evidence": "db_catalog.json: 접근 가능 뷰 9개, 원본 테이블은 public.lab_metadata만 읽기 가능, 관리자 권한 없음"
+    },
+    {
+      "id": "D-02",
+      "item": "전체 시간 예산과 종료 처리 시간",
+      "value": {
+        "total_budget_s": 30,
+        "closing_s": 1
+      },
+      "user_answer": "30초 / 1초",
+      "decided_by": "사용자",
+      "date": "2026-10-15"
+    },
+    {
+      "id": "D-03",
+      "item": "LLM 제공자와 모델",
+      "value": {
+        "provider": "Groq",
+        "model": "openai/gpt-oss-120b"
+      },
+      "user_answer": "Groq, openai/gpt-oss-120b",
+      "decided_by": "사용자",
+      "date": "2026-10-15",
+      "structure": "실행 설정(SQL_RETRIEVER_LLM_PROVIDER, SQL_RETRIEVER_LLM_MODEL 환경변수)으로 1개를 고르는 구조. 현재 후보는 1개"
+    },
+    {
+      "id": "D-04",
+      "item": "LLM 하이퍼파라미터",
+      "value": {
+        "temperature": 0.1,
+        "top_p": 1,
+        "reasoning_effort": "high",
+        "reasoning_format": "hidden",
+        "max_completion_tokens": 5000,
+        "seed": 42,
+        "n": 1,
+        "stream": false,
+        "response_format": "json_schema, strict: true"
+      },
+      "ai_proposal": "temperature 0.2, reasoning_effort low, max_completion_tokens 2048",
+      "user_answer": "온도는 0.1, 추론은 high, 최대출력 5000",
+      "decided_by": "사용자",
+      "date": "2026-10-15",
+      "note": "Groq 추론 문서는 반복 출력을 막으려 temperature 0.5 ~ 0.7을 권장함. 0.1에서 반복 출력이 생기는지 실측으로 확인 필요"
+    },
+    {
+      "id": "D-05",
+      "item": "LLM 타임아웃과 재시도",
+      "value": {
+        "timeout_s": 12,
+        "retries": 0,
+        "sdk_max_retries": 0
+      },
+      "user_answer": "타임아웃 12초, 재시도 0회",
+      "decided_by": "사용자",
+      "date": "2026-10-15",
+      "reason": "추론 high와 최대 출력 5000토큰이면 생성에 약 10초(5000 / 약 500 토큰/초)가 걸릴 수 있어 6초 가정을 버림. 12초는 설계 가정이며 개발 후 실측함"
+    },
+    {
+      "id": "D-06",
+      "item": "정형쿼리 목록",
+      "value": [
+        "FQ-01",
+        "FQ-02",
+        "FQ-03",
+        "FQ-04",
+        "FQ-05",
+        "FQ-06",
+        "FQ-07",
+        "FQ-08",
+        "FQ-09"
+      ],
+      "user_answer": "9개 모두 확정",
+      "decided_by": "사용자",
+      "date": "2026-10-15",
+      "evidence": "work/fixed_queries.json, work/explain_fixed_queries.log (sql_retriever_user 권한 EXPLAIN 9/9 통과)"
+    },
+    {
+      "id": "D-07",
+      "item": "SQL 검증 규칙",
+      "value": {
+        "allowed_views": [
+          "app.customer_profile",
+          "app.customer_cards",
+          "app.monthly_usage",
+          "app.customer_delinquency",
+          "app.customer_delinquency_history",
+          "app.customer_daily_usage",
+          "app.merchant_usage"
+        ],
+        "allowed_columns": "허용 뷰의 모든 컬럼(db_catalog.json 기준)",
+        "allowed_syntax": [
+          "SELECT 1문장",
+          "WITH",
+          "WHERE",
+          "JOIN(허용 뷰끼리)",
+          "GROUP BY",
+          "HAVING",
+          "ORDER BY",
+          "LIMIT",
+          "CASE"
+        ],
+        "allowed_functions": [
+          "sum",
+          "count",
+          "avg",
+          "min",
+          "max",
+          "date_trunc",
+          "to_char",
+          "extract",
+          "coalesce",
+          "round",
+          "greatest",
+          "least",
+          "abs",
+          "nullif"
+        ],
+        "row_limit": 200,
+        "forbidden": [
+          "쓰기와 정의 구문(INSERT, UPDATE, DELETE, MERGE, CREATE, ALTER, DROP, TRUNCATE, GRANT, REVOKE, COPY, SET, CALL, DO)",
+          "여러 문장",
+          "주석",
+          "app_internal, public, private, pg_catalog, information_schema 접근",
+          "set_config",
+          "current_setting",
+          "pg_sleep",
+          "generate_series",
+          "FOR UPDATE",
+          "SELECT INTO"
+        ]
+      },
+      "user_answer": "위 규칙 + 행 상한 200",
+      "decided_by": "사용자",
+      "date": "2026-10-15"
+    },
+    {
+      "id": "D-08",
+      "item": "반복 여부",
+      "value": "SQL 검증 실패 시 실패 사유를 주고 S-R2로 돌아가 1회 다시 만듦(L-1, 재시도 1회)",
+      "user_answer": "다시 만들기 1회",
+      "decided_by": "사용자",
+      "date": "2026-10-15"
+    },
+    {
+      "id": "D-09",
+      "item": "워크플로우에 없는 처리(외부 LLM 전송 전 개인 식별자 제거)",
+      "value": "새 단계로 추가하지 않고 S-R1 수행 작업에 넣음. 단계 수 6개 유지",
+      "user_answer": "S-R1 수행 작업에 넣음",
+      "decided_by": "사용자",
+      "date": "2026-10-15",
+      "reason": "상담사 질문에 이름, 전화번호, 카드번호, 회원ID가 들어갈 수 있고 질문이 외부 LLM(Groq)으로 나감"
+    },
+    {
+      "id": "D-3J-01",
+      "item": "3조 논리 뷰 추가(VIP 이탈 방지)",
+      "value": "app.vip_monthly_trend, vip_annual_fee_burden, vip_activity_signal, vip_category_share, vip_churn_signal_summary 5개",
+      "user_answer": "설계 범위: 단계는 예제 그대로 두고, 논리뷰와 정형쿼리만 우리 고객군용으로 바꿈",
+      "decided_by": "사용자(범위 결정), 뷰 목록은 AI 제안으로 승인 대기",
+      "date": "2026-10-19",
+      "evidence": "rdb/init/07_vip_churn_views.sql. 근거: 대화에서 정한 이탈 신호(연회비 부담, 사용 감소, 주 사용 업종)",
+      "status": "제안(승인 대기)"
+    },
+    {
+      "id": "D-3J-02",
+      "item": "3조 정형쿼리 추가",
+      "value": "FQ-10 월 사용액 추이, FQ-11 연회비 대비 사용액, FQ-12 최근 활동 신호, FQ-13 업종 비중과 순위, FQ-14 이탈 신호 종합",
+      "user_answer": "위와 같음",
+      "decided_by": "사용자(범위 결정), 쿼리 목록은 AI 제안으로 승인 대기",
+      "date": "2026-10-19",
+      "evidence": "work/fixed_queries.json. EXPLAIN은 DB 미접속으로 미실행",
+      "status": "제안(승인 대기)"
+    },
+    {
+      "id": "D-3J-03",
+      "item": "정형쿼리 키워드 규칙 조정(S-R2 대체 경로)",
+      "value": "FQ-08은 '업종'에서 비중, 비율, 순위, 주로가 없을 때로 좁히고, 같은 표현은 FQ-13이 받음",
+      "user_answer": "위와 같음",
+      "decided_by": "AI 제안(승인 대기)",
+      "date": "2026-10-19",
+      "evidence": "두 개 이상 일치하면 안전 종료하는 규칙에서 FQ-08과 FQ-13이 겹치지 않게 하려는 것임",
+      "status": "제안(승인 대기)"
+    },
+    {
+      "id": "D-3J-04",
+      "item": "DB 실행 검증 방식",
+      "value": "DB를 설치하지 않고 SQL을 사람이 읽어 검토함. 실행이 필요한 검증은 팀원 PC에서 함",
+      "user_answer": "최대한 뭐 설치하지말고 시뮬레이션으로만부탁해. 설치했다고 가정하고",
+      "decided_by": "사용자",
+      "date": "2026-10-19",
+      "evidence": "EXPLAIN, 통합 시험, db_catalog 뷰 수 대조는 미실행으로 남김",
+      "status": "확정"
+    },
+    {
+      "id": "D-3J-05",
+      "item": "LLM 통합 시험",
+      "value": "Groq 키 없이 단위 시험까지만 하고, LLM 통합 시험은 하지 않음",
+      "user_answer": "키 없이 단위 시험까지만",
+      "decided_by": "사용자",
+      "date": "2026-10-19",
+      "evidence": "secrets/.env에 GROQ 키 없음",
+      "status": "확정"
+    }
+  ],
+  "ai_design_choices": [
+    {
+      "item": "S-R2 판단 방식",
+      "value": "LLM 1회 호출로 경로(fixed, nl2sql, unanswerable)와 정형쿼리ID 또는 SQL을 함께 받음",
+      "reason": "판단과 SQL 생성을 따로 부르면 LLM 호출이 2회가 되어 30초 예산을 넘김"
+    },
+    {
+      "item": "S-R3 분기",
+      "value": "경로가 unanswerable이면 S-R6로 가서 '답할 수 없음'으로 응답(오류 종료 아님). 그 밖에는 S-R4로 감",
+      "reason": "입력 워크플로우의 오류 종료는 S-R4, S-R5에만 있음"
+    },
+    {
+      "item": "C-01 초과 시 처리",
+      "value": "대체 경로: 정형쿼리 키워드 표로 규칙 매칭. 일치가 없으면 안전 종료(LLM_UNAVAILABLE)",
+      "reason": "설계 가이드 1-3 검토 순서(부분결과 → 대체 경로 → 안전 종료). 부분결과는 SQL 없이 낼 결과가 없어 제외"
+    }
+  ],
+  "llm_research": {
+    "provider": "Groq",
+    "researched_on": "2026-10-15",
+    "saved_pages": ".temp/groq/*.md",
+    "items": [
+      {
+        "item": "베이스 URL",
+        "value": "https://api.groq.com/openai/v1",
+        "source": "https://console.groq.com/docs/openai",
+        "date": "2026-10-15"
+      },
+      {
+        "item": "엔드포인트",
+        "value": "POST /chat/completions",
+        "source": "https://console.groq.com/docs/api-reference",
+        "date": "2026-10-15"
+      },
+      {
+        "item": "인증 방식",
+        "value": "Authorization: Bearer 헤더, API 키 환경변수 GROQ_API_KEY",
+        "source": "https://console.groq.com/docs/api-reference",
+        "date": "2026-10-15"
+      },
+      {
+        "item": "모델 ID",
+        "value": "openai/gpt-oss-120b (Production 모델)",
+        "source": "https://console.groq.com/docs/models",
+        "date": "2026-10-15"
+      },
+      {
+        "item": "컨텍스트 창과 최대 출력 토큰",
+        "value": "컨텍스트 131,072 / 최대 출력 65,536",
+        "source": "https://console.groq.com/docs/model/openai/gpt-oss-120b",
+        "date": "2026-10-15"
+      },
+      {
+        "item": "출력 속도",
+        "value": "약 500 토큰/초",
+        "source": "https://console.groq.com/docs/models",
+        "date": "2026-10-15"
+      },
+      {
+        "item": "temperature",
+        "value": "범위 0 ~ 2, 기본 1. 0을 주면 1e-8로 바뀜. 설계값 0.1",
+        "source": "https://console.groq.com/docs/api-reference ; https://console.groq.com/docs/openai",
+        "date": "2026-10-15"
+      },
+      {
+        "item": "top_p",
+        "value": "범위 0 ~ 1, 기본 1. temperature와 둘 중 하나만 바꾸라 권고. 설계값 1(기본 유지)",
+        "source": "https://console.groq.com/docs/api-reference",
+        "date": "2026-10-15"
+      },
+      {
+        "item": "reasoning_effort",
+        "value": "gpt-oss-120b는 low, medium, high 지원, 기본 medium. 설계값 high",
+        "source": "https://console.groq.com/docs/api-reference ; https://console.groq.com/docs/reasoning",
+        "date": "2026-10-15"
+      },
+      {
+        "item": "reasoning_format",
+        "value": "hidden, raw, parsed. JSON 모드에서는 parsed 또는 hidden만 가능. 설계값 hidden",
+        "source": "https://console.groq.com/docs/reasoning",
+        "date": "2026-10-15"
+      },
+      {
+        "item": "max_completion_tokens",
+        "value": "정수, 모델 최대 65,536. 설계값 5000",
+        "source": "https://console.groq.com/docs/api-reference ; https://console.groq.com/docs/model/openai/gpt-oss-120b",
+        "date": "2026-10-15"
+      },
+      {
+        "item": "seed",
+        "value": "정수, 같은 값이면 결과를 최대한 같게 하려 하지만 보장하지 않음. 설계값 42",
+        "source": "https://console.groq.com/docs/api-reference",
+        "date": "2026-10-15"
+      },
+      {
+        "item": "n",
+        "value": "1만 지원(다른 값은 400)",
+        "source": "https://console.groq.com/docs/api-reference",
+        "date": "2026-10-15"
+      },
+      {
+        "item": "구조화 출력",
+        "value": "response_format {type: json_schema, json_schema: {name, strict: true, schema}}. strict 모드는 gpt-oss-120b 지원. 모든 필드 required, additionalProperties false, 선택 값은 [\"string\", \"null\"] 합 타입",
+        "source": "https://console.groq.com/docs/structured-outputs",
+        "date": "2026-10-15"
+      },
+      {
+        "item": "요청 한도",
+        "value": "확인 필요: rate-limits 문서 표는 30 RPM, 1K RPD, 8K TPM, 200K TPD이고 models 문서 표는 Developer plan 1K RPM, 250K TPM임. 실제 값은 조직 limits 페이지(console.groq.com/settings/limits)에서 확인해야 함. 초과 시 429와 retry-after 헤더",
+        "source": "https://console.groq.com/docs/rate-limits ; https://console.groq.com/docs/models",
+        "date": "2026-10-15",
+        "status": "확인 필요"
+      },
+      {
+        "item": "오류 코드",
+        "value": "400, 401, 403, 404, 413, 422, 429, 498, 499, 500, 502, 503",
+        "source": "https://console.groq.com/docs/errors",
+        "date": "2026-10-15"
+      },
+      {
+        "item": "SDK 타임아웃과 재시도",
+        "value": "groq Python SDK 기본 timeout 60초, max_retries 2(408, 409, 429, 500 이상, 연결 오류 자동 재시도, 지수 대기 최대 8초). 설계는 timeout=12, max_retries=0으로 명시",
+        "source": "context7 /groq/groq-python (https://github.com/groq/groq-python/blob/main/README.md)",
+        "date": "2026-10-15"
+      },
+      {
+        "item": "시스템 프롬프트 권고",
+        "value": "확인 필요: reasoning 문서 권장 설정표에 '시스템 프롬프트를 피하고 지시를 user 메시지에 넣으라'는 문장이 있으나, gpt-oss-120b 모델 문서는 System > Developer > User 역할 위계 사용을 권함. 설계는 설계 가이드에 따라 시스템 프롬프트를 쓰고, 개발 후 두 방식을 평가셋으로 비교함",
+        "source": "https://console.groq.com/docs/reasoning ; https://console.groq.com/docs/model/openai/gpt-oss-120b",
+        "date": "2026-10-15",
+        "status": "확인 필요"
+      }
+    ]
+  }
+}

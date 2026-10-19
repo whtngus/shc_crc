@@ -1,0 +1,20 @@
+model=openai/gpt-oss-120b questions=19 skip=0 pass=p2-misses
+[01/19] ALT F01-D  plan       route=NL2SQL qid=None 1199ms out=191
+[02/19] OK  F02-D  plan       route=FIXED qid=FQ-02 663ms out=188
+[03/19] NG  F03-2  plan       route=NL2SQL qid=None 863ms out=302
+[04/19] NG  F03-5  plan       route=NL2SQL qid=None 1538ms out=309
+[05/19] ALT F03-D  plan       route=NL2SQL qid=None 886ms out=266
+[06/19] NG  F04-2  plan       route=NL2SQL qid=None 2547ms out=232
+[07/19] ALT F04-D  plan       route=NL2SQL qid=None 1141ms out=404
+[08/19] NG  F05-1  plan       route=NL2SQL qid=None 1510ms out=212
+[09/19] NG  F05-3  plan       route=NL2SQL qid=None 885ms out=293
+[10/19] NG  F05-4  plan       route=NL2SQL qid=None 820ms out=238
+[11/19] OK  F05-5  plan       route=FIXED qid=FQ-05 2392ms out=214
+[12/19] ALT F05-D  plan       route=NL2SQL qid=None 2239ms out=283
+[13/19] ALT F06-D  plan       route=NL2SQL qid=None 1111ms out=387
+[14/19] NG  F07-5  plan       route=NL2SQL qid=None 826ms out=236
+[15/19] ALT F07-D  plan       route=NL2SQL qid=None 1030ms out=359
+[16/19] NG  F08-2  plan       route=NL2SQL qid=None 1265ms out=358
+[17/19] NG  F08-3  plan       route=NL2SQL qid=None 895ms out=252
+[18/19] NG  F08-4  plan       route=NL2SQL qid=None 2165ms out=324
+[19/19] NG  F08-5  plan       route=NL2SQL qid=None 964ms out=222

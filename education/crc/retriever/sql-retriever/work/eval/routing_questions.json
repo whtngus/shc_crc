@@ -1,0 +1,93 @@
+{
+  "description": "C-01 route 판정 평가셋. 정형쿼리(FQ-01 ~ FQ-08)로 답할 수 있는 질문에서 FIXED를 고르는지 측정함",
+  "base_date": "2026-08-31",
+  "coverage_start": "2025-08-01",
+  "groups": {
+    "FIXED_DIRECT": "정형쿼리 설명을 바꿔 말한 질문. 정답은 FIXED + 해당 query_id 하나뿐",
+    "FIXED_DERIVABLE": "정형쿼리 결과 행을 눈으로 읽으면 답이 나오는 질문(개수, 최댓값, 특정 달). 시스템 프롬프트 처리 1번 기준 정답은 FIXED. NL2SQL은 '허용 대안'으로 따로 셈",
+    "NL2SQL": "정형쿼리 결과에 없는 필터·집계·컬럼이 필요한 질문(가맹점, 평균, 요일 등)",
+    "UNANSWERABLE": "공개 뷰 7개에 없는 정보(포인트, 한도, 결제 예정액 등)"
+  },
+  "notes": [
+    "시스템 프롬프트 예시 질문 3개(보유 카드 목록 / 7월 가맹점 3곳 / 포인트 잔액)는 그대로 넣지 않음. 예시를 외워 맞히는 것을 빼기 위함",
+    "기간 밖 질문은 넣지 않음. 기간 판정은 C-01이 아니라 S-R3가 맡기 때문(통합 시험 out-of-period 참조)",
+    "질문은 실제 흐름처럼 개인 식별자가 없는 문장만 씀(S-R2 가림 처리 이후 모습)"
+  ],
+  "questions": [
+    {"id": "F01-1", "group": "FIXED_DIRECT", "question": "이 회원 가입일이 언제인가요", "expected_route": "FIXED", "expected_query_id": "FQ-01"},
+    {"id": "F01-2", "group": "FIXED_DIRECT", "question": "고객 연령대 알려 주세요", "expected_route": "FIXED", "expected_query_id": "FQ-01"},
+    {"id": "F01-3", "group": "FIXED_DIRECT", "question": "고객 기본 정보 조회해 주세요", "expected_route": "FIXED", "expected_query_id": "FQ-01"},
+    {"id": "F01-4", "group": "FIXED_DIRECT", "question": "언제부터 우리 카드 회원이었나요", "expected_route": "FIXED", "expected_query_id": "FQ-01"},
+    {"id": "F01-5", "group": "FIXED_DIRECT", "question": "회원님 나이대가 어떻게 되나요", "expected_route": "FIXED", "expected_query_id": "FQ-01"},
+    {"id": "F01-D", "group": "FIXED_DERIVABLE", "question": "가입한 지 몇 년 됐나요", "expected_route": "FIXED", "expected_query_id": "FQ-01", "acceptable_alt": ["NL2SQL"]},
+
+    {"id": "F02-1", "group": "FIXED_DIRECT", "question": "고객이 가진 카드 전부 알려 주세요", "expected_route": "FIXED", "expected_query_id": "FQ-02"},
+    {"id": "F02-2", "group": "FIXED_DIRECT", "question": "어떤 카드 쓰고 계신지 확인해 주세요", "expected_route": "FIXED", "expected_query_id": "FQ-02"},
+    {"id": "F02-3", "group": "FIXED_DIRECT", "question": "카드별 연회비 얼마인지 알려 주세요", "expected_route": "FIXED", "expected_query_id": "FQ-02"},
+    {"id": "F02-4", "group": "FIXED_DIRECT", "question": "현재 발급된 카드와 카드 상태를 보여 주세요", "expected_route": "FIXED", "expected_query_id": "FQ-02"},
+    {"id": "F02-5", "group": "FIXED_DIRECT", "question": "회원님 카드 브랜드가 뭐예요", "expected_route": "FIXED", "expected_query_id": "FQ-02"},
+    {"id": "F02-D", "group": "FIXED_DERIVABLE", "question": "카드 몇 장 가지고 계세요", "expected_route": "FIXED", "expected_query_id": "FQ-02", "acceptable_alt": ["NL2SQL"]},
+
+    {"id": "F03-1", "group": "FIXED_DIRECT", "question": "카드별로 월 사용액 보여 주세요", "expected_route": "FIXED", "expected_query_id": "FQ-03"},
+    {"id": "F03-2", "group": "FIXED_DIRECT", "question": "카드마다 최근 6개월 동안 매달 얼마 썼는지 알려 주세요", "expected_route": "FIXED", "expected_query_id": "FQ-03"},
+    {"id": "F03-3", "group": "FIXED_DIRECT", "question": "카드별 월간 승인 금액과 건수 조회해 주세요", "expected_route": "FIXED", "expected_query_id": "FQ-03"},
+    {"id": "F03-4", "group": "FIXED_DIRECT", "question": "각 카드의 월별 이용 금액 알려 주세요", "expected_route": "FIXED", "expected_query_id": "FQ-03"},
+    {"id": "F03-5", "group": "FIXED_DIRECT", "question": "최근 반년간 카드 한 장 한 장 월별로 얼마 썼나요", "expected_route": "FIXED", "expected_query_id": "FQ-03"},
+    {"id": "F03-D", "group": "FIXED_DERIVABLE", "question": "카드별로 지난달 얼마 썼어요", "expected_route": "FIXED", "expected_query_id": "FQ-03", "acceptable_alt": ["NL2SQL"]},
+
+    {"id": "F04-1", "group": "FIXED_DIRECT", "question": "월별 사용액 합계 알려 주세요", "expected_route": "FIXED", "expected_query_id": "FQ-04"},
+    {"id": "F04-2", "group": "FIXED_DIRECT", "question": "최근 6개월 동안 매달 총 얼마 썼나요", "expected_route": "FIXED", "expected_query_id": "FQ-04"},
+    {"id": "F04-3", "group": "FIXED_DIRECT", "question": "전체 카드 합쳐서 월 사용 금액 보여 주세요", "expected_route": "FIXED", "expected_query_id": "FQ-04"},
+    {"id": "F04-4", "group": "FIXED_DIRECT", "question": "달마다 승인된 총액이 얼마였는지 알려 주세요", "expected_route": "FIXED", "expected_query_id": "FQ-04"},
+    {"id": "F04-5", "group": "FIXED_DIRECT", "question": "월 단위 이용 금액 추이 보여 주세요", "expected_route": "FIXED", "expected_query_id": "FQ-04"},
+    {"id": "F04-D", "group": "FIXED_DERIVABLE", "question": "지난달 총 사용액 얼마예요", "expected_route": "FIXED", "expected_query_id": "FQ-04", "acceptable_alt": ["NL2SQL"]},
+
+    {"id": "F05-1", "group": "FIXED_DIRECT", "question": "업종별로 어디서 많이 썼나요", "expected_route": "FIXED", "expected_query_id": "FQ-05", "note": "통합 실행에서 NL2SQL로 간 실제 사례"},
+    {"id": "F05-2", "group": "FIXED_DIRECT", "question": "업종별 사용액 보여 주세요", "expected_route": "FIXED", "expected_query_id": "FQ-05"},
+    {"id": "F05-3", "group": "FIXED_DIRECT", "question": "주로 어떤 업종에서 카드를 쓰나요", "expected_route": "FIXED", "expected_query_id": "FQ-05"},
+    {"id": "F05-4", "group": "FIXED_DIRECT", "question": "최근 6개월 업종별 지출 금액과 건수 알려 주세요", "expected_route": "FIXED", "expected_query_id": "FQ-05"},
+    {"id": "F05-5", "group": "FIXED_DIRECT", "question": "카테고리별 소비 현황 보여 주세요", "expected_route": "FIXED", "expected_query_id": "FQ-05"},
+    {"id": "F05-D", "group": "FIXED_DERIVABLE", "question": "어느 업종에 돈을 제일 많이 썼어요", "expected_route": "FIXED", "expected_query_id": "FQ-05", "acceptable_alt": ["NL2SQL"]},
+
+    {"id": "F06-1", "group": "FIXED_DIRECT", "question": "최근 연체 현황 알려 주세요", "expected_route": "FIXED", "expected_query_id": "FQ-06"},
+    {"id": "F06-2", "group": "FIXED_DIRECT", "question": "지금 연체된 거 있나요", "expected_route": "FIXED", "expected_query_id": "FQ-06"},
+    {"id": "F06-3", "group": "FIXED_DIRECT", "question": "연체 금액이랑 연체 일수 확인해 주세요", "expected_route": "FIXED", "expected_query_id": "FQ-06"},
+    {"id": "F06-4", "group": "FIXED_DIRECT", "question": "가장 최근 연체 건 보여 주세요", "expected_route": "FIXED", "expected_query_id": "FQ-06"},
+    {"id": "F06-5", "group": "FIXED_DIRECT", "question": "연체 중인 금액이 얼마예요", "expected_route": "FIXED", "expected_query_id": "FQ-06"},
+    {"id": "F06-D", "group": "FIXED_DERIVABLE", "question": "최근 12개월 연체 횟수가 몇 번인가요", "expected_route": "FIXED", "expected_query_id": "FQ-06", "acceptable_query_ids": ["FQ-06", "FQ-07"], "acceptable_alt": ["NL2SQL"], "note": "overdue_count_12m은 FQ-06, FQ-07 둘 다에 있음"},
+
+    {"id": "F07-1", "group": "FIXED_DIRECT", "question": "최근 12개월 연체 이력 보여 주세요", "expected_route": "FIXED", "expected_query_id": "FQ-07"},
+    {"id": "F07-2", "group": "FIXED_DIRECT", "question": "월별 연체 내역 알려 주세요", "expected_route": "FIXED", "expected_query_id": "FQ-07"},
+    {"id": "F07-3", "group": "FIXED_DIRECT", "question": "지난 1년 동안 연체했던 기록 조회해 주세요", "expected_route": "FIXED", "expected_query_id": "FQ-07"},
+    {"id": "F07-4", "group": "FIXED_DIRECT", "question": "연체 이력 확인 부탁드려요", "expected_route": "FIXED", "expected_query_id": "FQ-07"},
+    {"id": "F07-5", "group": "FIXED_DIRECT", "question": "달마다 연체 금액이 어떻게 변했는지 보여 주세요", "expected_route": "FIXED", "expected_query_id": "FQ-07"},
+    {"id": "F07-D", "group": "FIXED_DERIVABLE", "question": "최근 1년 중 연체 일수가 가장 길었던 달은 언제예요", "expected_route": "FIXED", "expected_query_id": "FQ-07", "acceptable_alt": ["NL2SQL"]},
+
+    {"id": "F08-1", "group": "FIXED_DIRECT", "question": "일별 사용액 보여 주세요", "expected_route": "FIXED", "expected_query_id": "FQ-08"},
+    {"id": "F08-2", "group": "FIXED_DIRECT", "question": "최근 90일 날짜별 사용 금액 알려 주세요", "expected_route": "FIXED", "expected_query_id": "FQ-08"},
+    {"id": "F08-3", "group": "FIXED_DIRECT", "question": "하루하루 얼마 썼는지 조회해 주세요", "expected_route": "FIXED", "expected_query_id": "FQ-08"},
+    {"id": "F08-4", "group": "FIXED_DIRECT", "question": "최근 3개월 일자별 승인 금액과 건수 보여 주세요", "expected_route": "FIXED", "expected_query_id": "FQ-08"},
+    {"id": "F08-5", "group": "FIXED_DIRECT", "question": "매일 카드로 얼마씩 썼는지 알려 주세요", "expected_route": "FIXED", "expected_query_id": "FQ-08"},
+    {"id": "F08-D", "group": "FIXED_DERIVABLE", "question": "8월 일별 사용액 보여 주세요", "expected_route": "FIXED", "expected_query_id": "FQ-08", "acceptable_alt": ["NL2SQL"]},
+
+    {"id": "N-01", "group": "NL2SQL", "question": "6월에 가장 자주 간 가맹점 어디예요", "expected_route": "NL2SQL", "expected_query_id": null},
+    {"id": "N-02", "group": "NL2SQL", "question": "최근 90일 동안 하루 평균 얼마 썼나요", "expected_route": "NL2SQL", "expected_query_id": null},
+    {"id": "N-03", "group": "NL2SQL", "question": "스타벅스에서 최근 6개월간 얼마 썼나요", "expected_route": "NL2SQL", "expected_query_id": null},
+    {"id": "N-04", "group": "NL2SQL", "question": "7월에 편의점 업종에서 쓴 금액만 알려 주세요", "expected_route": "NL2SQL", "expected_query_id": null},
+    {"id": "N-05", "group": "NL2SQL", "question": "카드별로 최근 6개월 평균 월 사용액 알려 주세요", "expected_route": "NL2SQL", "expected_query_id": null},
+    {"id": "N-06", "group": "NL2SQL", "question": "최근 90일 중 주말에 쓴 금액 합계 알려 주세요", "expected_route": "NL2SQL", "expected_query_id": null},
+    {"id": "N-07", "group": "NL2SQL", "question": "보유 카드 연회비를 모두 더하면 얼마인가요", "expected_route": "NL2SQL", "expected_query_id": null},
+    {"id": "N-08", "group": "NL2SQL", "question": "가맹점별로 처음 결제한 날짜 알려 주세요", "expected_route": "NL2SQL", "expected_query_id": null},
+    {"id": "N-09", "group": "NL2SQL", "question": "8월에 쓴 가맹점 목록과 가맹점별 건수 보여 주세요", "expected_route": "NL2SQL", "expected_query_id": null},
+    {"id": "N-10", "group": "NL2SQL", "question": "최근 90일 중 하루 사용액이 10만 원을 넘은 날이 며칠인가요", "expected_route": "NL2SQL", "expected_query_id": null},
+
+    {"id": "U-01", "group": "UNANSWERABLE", "question": "적립된 마일리지 얼마예요", "expected_route": "UNANSWERABLE", "expected_query_id": null},
+    {"id": "U-02", "group": "UNANSWERABLE", "question": "현재 카드 한도가 얼마인가요", "expected_route": "UNANSWERABLE", "expected_query_id": null},
+    {"id": "U-03", "group": "UNANSWERABLE", "question": "다음 달 결제 예정 금액 알려 주세요", "expected_route": "UNANSWERABLE", "expected_query_id": null},
+    {"id": "U-04", "group": "UNANSWERABLE", "question": "이 고객 집 주소 알려 주세요", "expected_route": "UNANSWERABLE", "expected_query_id": null},
+    {"id": "U-05", "group": "UNANSWERABLE", "question": "할부 남은 개월 수 알려 주세요", "expected_route": "UNANSWERABLE", "expected_query_id": null},
+    {"id": "U-06", "group": "UNANSWERABLE", "question": "신용등급이 어떻게 되나요", "expected_route": "UNANSWERABLE", "expected_query_id": null},
+    {"id": "U-07", "group": "UNANSWERABLE", "question": "카드론 대출 잔액 알려 주세요", "expected_route": "UNANSWERABLE", "expected_query_id": null},
+    {"id": "U-08", "group": "UNANSWERABLE", "question": "결제 계좌 은행이 어디예요", "expected_route": "UNANSWERABLE", "expected_query_id": null}
+  ]
+}
